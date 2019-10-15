@@ -11,7 +11,11 @@
     with_items:
      - kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
      - touch /tmp/.k8s_init
-
+     
+#  - name: set api server proxy
+#    shell: kubectl proxy --port=8080 &
+#    args:
+#      creates: /tmp/.api_proxy
 
   - name: Setup kubeconfig for vagrant user
     command: "{{ item }}"
@@ -26,7 +30,7 @@
     args:
       creates: /tmp/.calico
     with_items:
-     - kubectl create -f https://docs.projectcalico.org/v3.9/getting-started/kubernetes/installation/hosted/calico.yaml
+     - kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/calico.yaml
      - touch /tmp/.calico  
     
 
