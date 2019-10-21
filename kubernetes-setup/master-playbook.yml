@@ -41,7 +41,23 @@
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
 
-
+  - name: Installation Helm v2.15
+    unarchive:
+      src: https://get.helm.sh/helm-v2.15.0-rc.1-linux-amd64.tar.gz
+      dest: /usr/local/bin
+      extra_opts:
+      - --strip=1
+      - --wildcards
+      - '*/helm'
+      remote_src: yes
+  
+#  - name: pause 2 minutes to let the basic pods in running state
+#    pause:
+#      minutes: 2
+    
+#  - name: Helm In-Cluster Installation
+#    command: helm init
+      
   handlers:
     - name: docker status
       service: name=docker state=started

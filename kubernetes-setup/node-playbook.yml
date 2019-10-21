@@ -8,7 +8,12 @@
     copy: src=join-command dest=/tmp/join-command.sh mode=0777
 
   - name: Join the node to cluster
-    command: sh /tmp/join-command.sh
+    command: "{{ item }}"
+    args:
+      creates: /tmp/.join_cluster
+    with_items:
+     - sh /tmp/join-command.sh
+     - touch /tmp/.calico
 
   handlers:
     - name: docker status
