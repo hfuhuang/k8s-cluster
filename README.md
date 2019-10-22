@@ -34,3 +34,9 @@ kube-system   kube-proxy-bh4wm                          1/1     Running   0     
 kube-system   kube-proxy-kt6sf                          1/1     Running   0          64s
 kube-system   kube-scheduler-k8s-master                 1/1     Running   0          6m34s
   
+
+Port Forwarding:
+===============
+kubectl proxy --port=8080 --address=0.0.0.0
+
+http://localhost:8080/api/  

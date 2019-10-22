@@ -21,6 +21,11 @@ N = 2
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
+    config.hostmanager.enabled = true
+  	config.hostmanager.manage_host = false
+  	config.hostmanager.manage_guest = true
+  	config.hostmanager.ignore_private_ip = false
+  	config.hostmanager.include_offline = true
 
     config.vm.provider "virtualbox" do |v|
         v.memory = 1024
