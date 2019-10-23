@@ -2,6 +2,12 @@
 - hosts: all
   become: true
   tasks:
+  - name: "Make sure 127.0.0.1 is not mapped to {{ ansible_host }}"
+    lineinfile:
+      path: /etc/hosts
+      state: absent
+      regexp: '^127\.0\.1\.1\t{{ ansible_host }}\t{{ ansible_host }}'
+    
   - import_tasks: common-tasks.yml
 
   - name: Copy the join command to server location

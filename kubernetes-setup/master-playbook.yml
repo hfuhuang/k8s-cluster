@@ -1,7 +1,13 @@
 ---
 - hosts: all
   become: true
-  tasks:
+  tasks:    
+  - name: "Make sure 127.0.0.1 is not mapped to {{ ansible_host }}"
+    lineinfile:
+      path: /etc/hosts
+      state: absent
+      regexp: '^127\.0\.1\.1\t{{ ansible_host }}\t{{ ansible_host }}'
+  
   - import_tasks: common-tasks.yml
 
   - name: Initialize the Kubernetes cluster using kubeadm
@@ -9,7 +15,7 @@
     args:
       creates: /tmp/.k8s_init
     with_items:
-     - kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
+     - kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name k8s-master --pod-network-cidr=172.16.0.0/16
      - touch /tmp/.k8s_init
      
 #  - name: set api server proxy

@@ -40,3 +40,10 @@ Port Forwarding:
 kubectl proxy --port=8080 --address=0.0.0.0
 
 http://localhost:8080/api/  
+
+Add Dashboard
+===============
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+
+login:
+http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
