@@ -34,6 +34,10 @@ Check:
 	kube-system   kube-proxy-kt6sf                          1/1     Running   0          64s
 	kube-system   kube-scheduler-k8s-master                 1/1     Running   0          6m34s
   
+Notes: create a helm service account and assign a correct role to it 
+kubectl create serviceaccount -n kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+kubectl --namespace kube-system patch deploy tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
 Port Forwarding:
 ===============
@@ -82,12 +86,26 @@ Helm
 	To prevent this, run `helm init` with the --tiller-tls-verify flag.
 	For more information on securing your installation see: https://docs.helm.sh/using_helm/#securing-your-helm-installation
 
+Notes:
+There is an version mismatch betwen helm and k8s:
+https://github.com/helm/helm/issues/6374#issuecomment-533853888
+
 In-Cluster Image Repository
 ==
 * Ref: https://blog.container-solutions.com/installing-a-registry-on-kubernetes-quickstart (https://github.com/ContainerSolutions/trow.git)
-* Or: https://github.com/helm/charts/tree/master/stable/docker-registry
+* Or: https://github.com/jfrog/charts.git
+
+	git clone https://github.com/jfrog/charts.git
+	cd stable
 
 
+	sed -i 's@apiVersion: extensions/v1beta1@apiVersion: policy/v1beta1@' `find . -iregex ".*yaml\|.*yml" -exec awk '/kind:\s+PodSecurityPolicy/ {print FILENAME}' {} +`
+
+	sed -i 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' `find . -iregex ".*yaml\|.*yml" -exec awk '/kind:\s+(Deployment|StatefulSet|ReplicaSet|DaemonSet)/ {print FILENAME}' {} +`
+
+	sed -i 's@apiVersion: apps/v1beta2@apiVersion: apps/v1@' `find . -iregex ".*yaml\|.*yml" -exec awk '/kind:\s+(Deployment|StatefulSet|ReplicaSet|DaemonSet)/ {print FILENAME}' {} +`
+	
+	
 In-Cluster Jenkins for CI/CD
 ==
 t.b.d

@@ -47,22 +47,53 @@
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
 
+  - name: create service account for helm
+    become: false
+    command: "{{ item }}"
+    args:
+      creates: /tmp/.helm_account
+    with_items:
+     - kubectl create serviceaccount -n kube-system tiller
+     - kubectl create clusterrolebinding tiller-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+     - touch /tmp/.helm_account
+
   - name: Installation Helm v2.15
     unarchive:
-      src: https://get.helm.sh/helm-v2.15.0-rc.1-linux-amd64.tar.gz
+      src: https://get.helm.sh/helm-v2.15.1-linux-amd64.tar.gz
       dest: /usr/local/bin
       extra_opts:
-      - --strip=1
-      - --wildcards
-      - '*/helm'
+       - --strip=1
+       - --wildcards
+       - '*/helm'
       remote_src: yes
-  
-#  - name: pause 2 minutes to let the basic pods in running state
-#    pause:
-#      minutes: 2
+
+  - name: create service account for dashboard
+    become: false
+    command: "{{ item }}"
+    args:
+      creates: /tmp/.dashboard_account
+    with_items:
+     - kubectl create serviceaccount cluster-admin-dashboard-sa
+     - kubectl create clusterrolebinding cluster-admin-dashboard-sa --clusterrole=cluster-admin --serviceaccount=default:cluster-admin-dashboard-sa
+     - touch /tmp/.dashboard_account
+       
+  - name: Installation K8s Dashboard
+    become: false
+    command: '{{ item }}'
+    args:
+      creates: /tmp/.k8s_dashboard
+    with_items:
+     - kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+     - touch /tmp/.k8s_dashboard
     
-#  - name: Helm In-Cluster Installation
-#    command: helm init
+  - name: Helm In-Cluster Initialization
+    become: false
+    command: "{{ item }}"
+    args:
+      creates: /tmp/.init_helm
+    with_items:  
+     - helm init --service-account tiller
+     - touch /tmp/.init_helm
       
   handlers:
     - name: docker status
