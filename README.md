@@ -33,11 +33,6 @@ Check:
 	kube-system   kube-proxy-bh4wm                          1/1     Running   0          7m20s
 	kube-system   kube-proxy-kt6sf                          1/1     Running   0          64s
 	kube-system   kube-scheduler-k8s-master                 1/1     Running   0          6m34s
-  
-Notes: create a helm service account and assign a correct role to it 
-kubectl create serviceaccount -n kube-system tiller
-kubectl create clusterrolebinding tiller-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-kubectl --namespace kube-system patch deploy tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
 Port Forwarding:
 ===============
@@ -68,42 +63,20 @@ And then, you can use the token of just created cluster admin service account.
 	
 Helm
 ==
-
-	vagrant@k8s-master:~$ helm init
-	Creating /home/vagrant/.helm
-	Creating /home/vagrant/.helm/repository
-	Creating /home/vagrant/.helm/repository/cache
-	Creating /home/vagrant/.helm/repository/local
-	Creating /home/vagrant/.helm/plugins
-	Creating /home/vagrant/.helm/starters
-	Creating /home/vagrant/.helm/cache/archive
-	Creating /home/vagrant/.helm/repository/repositories.yaml
-	Adding stable repo with URL: https://kubernetes-charts.storage.googleapis.com
-	Adding local repo with URL: http://127.0.0.1:8879/charts
-	$HELM_HOME has been configured at /home/vagrant/.helm.
-	Tiller (the Helm server-side component) has been installed into your Kubernetes Cluster.
-	Please note: by default, Tiller is deployed with an insecure 'allow unauthenticated users' policy.
-	To prevent this, run `helm init` with the --tiller-tls-verify flag.
-	For more information on securing your installation see: https://docs.helm.sh/using_helm/#securing-your-helm-installation
-
-Notes:
-There is an version mismatch betwen helm and k8s:
+Helm version 2.15.1 has been installed and initialized during the VM provision. But there is an version mismatch betwen helm and k8s:
 https://github.com/helm/helm/issues/6374#issuecomment-533853888
+
+Solution will be:
+
+	Added below flag to api server (/etc/kubernetes/manifests/kube-apiserver.yaml) that temporarily re-enabled those deprecated API.
+	--runtime-config=apps/v1beta1=true,apps/v1beta2=true,extensions/v1beta1/daemonsets=true,extensions/v1beta1/deployments=true,extensions/v1beta1/replicasets=true,extensions/v1beta1/networkpolicies=true,extensions/v1beta1/podsecuritypolicies=true
+
+
 
 In-Cluster Image Repository
 ==
 * Ref: https://blog.container-solutions.com/installing-a-registry-on-kubernetes-quickstart (https://github.com/ContainerSolutions/trow.git)
 * Or: https://github.com/jfrog/charts.git
-
-	git clone https://github.com/jfrog/charts.git
-	cd stable
-
-
-	sed -i 's@apiVersion: extensions/v1beta1@apiVersion: policy/v1beta1@' `find . -iregex ".*yaml\|.*yml" -exec awk '/kind:\s+PodSecurityPolicy/ {print FILENAME}' {} +`
-
-	sed -i 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' `find . -iregex ".*yaml\|.*yml" -exec awk '/kind:\s+(Deployment|StatefulSet|ReplicaSet|DaemonSet)/ {print FILENAME}' {} +`
-
-	sed -i 's@apiVersion: apps/v1beta2@apiVersion: apps/v1@' `find . -iregex ".*yaml\|.*yml" -exec awk '/kind:\s+(Deployment|StatefulSet|ReplicaSet|DaemonSet)/ {print FILENAME}' {} +`
 	
 	
 In-Cluster Jenkins for CI/CD
