@@ -23,6 +23,13 @@
 #    args:
 #      creates: /tmp/.api_proxy
 
+  - name: patch k8s for old api version
+    lineinfile:
+      path: "/etc/kubernetes/manifests/kube-apiserver.yaml"
+      line: "    - --runtime-config=apps/v1beta1=true,apps/v1beta2=true,extensions/v1beta1/daemonsets=true,extensions/v1beta1/deployments=true,extensions/v1beta1/replicasets=true,extensions/v1beta1/networkpolicies=true,extensions/v1beta1/podsecuritypolicies=true"
+      insertafter: '    - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key'
+      state: present
+  
   - name: Setup kubeconfig for vagrant user
     command: "{{ item }}"
     with_items:

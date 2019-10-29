@@ -83,4 +83,4 @@ In-Cluster Image Repository
 	
 In-Cluster Jenkins for CI/CD
 ==
-t.b.d
+	 helm install --name my-jenkins --set persistence.existingClaim=jenkens-pvc stable/jenkins
