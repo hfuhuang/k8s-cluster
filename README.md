@@ -78,6 +78,8 @@ In-Cluster Image Repository
 * Ref: https://blog.container-solutions.com/installing-a-registry-on-kubernetes-quickstart (https://github.com/ContainerSolutions/trow.git)
 * Or: https://github.com/jfrog/charts.git
 	
+	helm install --name artifactory --set artifactory.image.repository=docker.bintray.io/jfrog/artifactory-oss --set postgresql.persistence.size=20Gi --set artifactory.persistence.existingClaim=artifactory-volume-pvc --set postgresql.persistence.existingClaim=data-artifactory-postgresql-0 jfrog/artifactory
+	
 	
 In-Cluster Jenkins for CI/CD
 ==
