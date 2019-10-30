@@ -84,3 +84,14 @@ In-Cluster Image Repository
 In-Cluster Jenkins for CI/CD
 ==
 	 helm install --name my-jenkins --set persistence.existingClaim=jenkens-pvc stable/jenkins
+	 
+It can be tested with patching the external IP:
+
+	 kubectl patch svc my-jenkins -n default -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.50.10"]}}'
+
+
+Others
+==
+
+https://www.digitalocean.com/community/tutorials/how-to-inspect-kubernetes-networking
+	 	 
